@@ -166,8 +166,11 @@ RUN CONFIG="\
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY default.conf /etc/nginx/conf.d/default.conf
 
-COPY owasp-modsecurity-crs /usr/local/
-COPY modsec /etc/nginx/
+# XXX: re-enable  modsecurity
+#COPY owasp-modsecurity-crs /usr/local/
+#COPY modsec /etc/nginx/
+
 EXPOSE 80 443
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY bootstrap.sh /bootstrap.sh
+CMD ["/bootstrap.sh"]

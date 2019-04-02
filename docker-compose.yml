@@ -1,0 +1,10 @@
+version: "3.4"
+
+services:
+
+  web:
+    build: .
+    volumes:
+      - ./example_php:/usr/share/nginx/html
+    ports:
+      - 80:80
