@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM php:7.3-fpm-alpine3.9
 
 ENV NGINX_VERSION 1.15.10
 
