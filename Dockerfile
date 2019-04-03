@@ -163,6 +163,9 @@ RUN CONFIG="\
 	&& ln -sf /dev/stdout /var/log/nginx/access.log \
 	&& ln -sf /dev/stderr /var/log/nginx/error.log
 
+# PHP extensions
+RUN docker-php-ext-install mysqli
+
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY default.conf /etc/nginx/conf.d/default.conf
 
