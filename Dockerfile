@@ -47,7 +47,6 @@ RUN CONFIG="\
 		--with-compat \
 		--with-file-aio \
 		--with-http_v2_module \
-		--add-module=/usr/src/ModSecurity-nginx \
 	" \
 	&& addgroup -S nginx \
 	&& adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
@@ -65,17 +64,6 @@ RUN CONFIG="\
 		gd-dev \
 		geoip-dev \
 		perl-dev \
-	&& apk add --no-cache --virtual .libmodsecurity-deps \
-		pcre-dev \
-		libxml2-dev \
-		git \
-		libtool \
-		automake \
-		autoconf \
-		g++ \
-		flex \
-		bison \
-		yajl-dev \
 	# Add runtime dependencies that should not be removed
 	&& apk add --no-cache \
 		yajl \
@@ -84,32 +72,6 @@ RUN CONFIG="\
 	&& mkdir -p /usr/src \
 	&& tar -zxC /usr/src -f nginx.tar.gz \
 	&& rm nginx.tar.gz \
-	&& cd /usr/src \
-	&& git clone https://github.com/SpiderLabs/ModSecurity \
-	&& cd ModSecurity \
-	&& git checkout v3/master \
-	&& git submodule init \
-	&& git submodule update \
-	&& sed -i -e 's/u_int64_t/uint64_t/g' \
-		./src/actions/transformations/html_entity_decode.cc \
-		./src/actions/transformations/html_entity_decode.h \
-		./src/actions/transformations/js_decode.cc \
-		./src/actions/transformations/js_decode.h \
-		./src/actions/transformations/parity_even_7bit.cc \
-		./src/actions/transformations/parity_even_7bit.h \
-		./src/actions/transformations/parity_odd_7bit.cc \
-		./src/actions/transformations/parity_odd_7bit.h \
-		./src/actions/transformations/parity_zero_7bit.cc \
-		./src/actions/transformations/parity_zero_7bit.h \
-		./src/actions/transformations/remove_comments.cc \
-		./src/actions/transformations/url_decode_uni.cc \
-		./src/actions/transformations/url_decode_uni.h \
-	&& sh build.sh \
-	&& ./configure \
-	&& make \
-	&& make install \
-	&& cd /usr/src \
-	&& git clone https://github.com/SpiderLabs/ModSecurity-nginx \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
 	&& ./configure $CONFIG --with-debug \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
@@ -154,10 +116,8 @@ RUN CONFIG="\
 	)" \
 	&& apk add --no-cache --virtual .nginx-rundeps $runDeps \
 	&& apk del .build-deps \
-	&& apk del .libmodsecurity-deps \
 	&& apk del .gettext \
 	&& mv /tmp/envsubst /usr/local/bin/ \
-	&& rm -rf /usr/src/ModSecurity /usr/src/ModSecurity-nginx \
 	\
 	# forward request and error logs to docker log collector
 	&& ln -sf /dev/stdout /var/log/nginx/access.log \
@@ -168,10 +128,6 @@ RUN docker-php-ext-install mysqli
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY default.conf /etc/nginx/conf.d/default.conf
-
-# XXX: re-enable  modsecurity
-#COPY owasp-modsecurity-crs /usr/local/
-#COPY modsec /etc/nginx/
 
 EXPOSE 80 443
 
